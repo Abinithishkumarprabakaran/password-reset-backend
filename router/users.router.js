@@ -1,16 +1,21 @@
 import express from "express";
-import { getUserByName, createUser } from "../service/users.service.js";
+import { getUserByName, createUser, getAllUsers } from "../service/users.service.js";
 const router = express.Router();
 
-router.get("/signup", function (request, response) {
+router.get("/signup", async function (request, response) {
     response.send("Welcome to Signup");
+
+    const result = await getAllUsers()
+
+    response.send(result)
+
 });
 
 router.post("/signup", async function (request, response) {
     const { username, password } = request.body;
 
     const userFromDB = await getUserByName(username);
-    console.log(userFromDB);
+    // console.log(userFromDB);
 
     if(userFromDB) {
         response.status(404).send({message: "Username Already Exists"})

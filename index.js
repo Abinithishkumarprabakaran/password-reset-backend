@@ -1,5 +1,4 @@
-// const express = require("express"); // "type": "commonjs"
-import express from "express"; // "type": "module"
+import express from "express";
 import * as dotenv from 'dotenv';
 import { MongoClient } from "mongodb";
 import cors from 'cors';

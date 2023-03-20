@@ -12,3 +12,11 @@ export async function createUser(data) {
         .collection("users")
         .insertOne(data);
 }
+
+export async function getAllUsers() {
+    return await client
+        .db("passwordDB")
+        .collection("users")
+        .find({})
+        .toArray();
+}
