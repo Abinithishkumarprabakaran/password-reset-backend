@@ -3,7 +3,7 @@ import { getUserByName, createUser, getAllUsers } from "../service/users.service
 const router = express.Router();
 
 router.get("/signup", async function (request, response) {
-    response.send("Welcome to Signup");
+    // response.send("Welcome to Signup");
 
     const result = await getAllUsers()
 
