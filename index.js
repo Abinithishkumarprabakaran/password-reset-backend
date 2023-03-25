@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { MongoClient } from "mongodb";
 import cors from 'cors';
 import userRouter from "./router/users.router.js"
+
 dotenv.config();
 export const app = express();
 
