@@ -31,9 +31,29 @@ router.post("/signup", async function (request, response) {
         })
         response.send(result)
     }
-
-
 });
+
+router.post("/login", async function (request, response) {
+    const { username, password } = request.body;
+  
+    const userFromDB = await getUserByName(username);
+    // console.log(userFromDB)
+  
+    if( !userFromDB ) {
+      response.status(404).send({message: "Invalid Credentials"})
+    }
+    else {
+      const storedDBPassword = userFromDB.password;
+      const isPasswordCheck = await bcrypt.compare(password, storedDBPassword)
+      // console.log(isPasswordCheck)
+      if( isPasswordCheck ) {
+        response.send({ message: 'Login successful' })
+      }
+      else {
+        response.status(400).send({ message: 'Invalid Credentials' })
+      }
+    }
+})
 
 export default router
 
