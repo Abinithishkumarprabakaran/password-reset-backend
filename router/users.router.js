@@ -80,7 +80,7 @@ router.post("/confirmation", async function( request, response ) {
       "username" : userFromDB.username,
       "userID" : userFromDB._id,
       "OTP" : OTP,
-      "createdAt" : new Date(),
+      "ExpiresIn" : new Date().getTime() + 300000,
     }
     const result = await confirmEmailOTP(resetToken)
     console.log(resetToken)
@@ -98,7 +98,16 @@ router.post("/forgotpassword", async function( request, response ) {
     response.status(401).send({message: "Invalid OTP"})
   }
   else {
-    response.send(checkingOTP)
+
+    const currentTime = new Date().getTime()
+    const diff = checkingOTP.ExpiresIn - currentTime
+
+    if(diff < 0) {
+      response.status(401).send({message: "Invalid OTP"})
+    }
+    else {
+      response.send(checkingOTP)
+    }
   }
 
 })
