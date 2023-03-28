@@ -34,3 +34,10 @@ export async function checkOTP(OTP) {
         .collection("confirmusers")
         .findOne({ OTP: OTP });
 }
+
+export async function updatePassword(id, data) {
+    return await client
+        .db("passwordDB")
+        .collection("users")
+        .updateOne({ _id: new ObjectId(id) }, { $set: data });
+}

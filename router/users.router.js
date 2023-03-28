@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { getUserByName, createUser, confirmEmailOTP, getUserById, checkOTP } from "../service/users.service.js";
+import { getUserByName, createUser, confirmEmailOTP, getUserById, checkOTP, updatePassword } from "../service/users.service.js";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import {Str} from '@supercharge/strings';
@@ -78,6 +78,7 @@ router.post("/confirmation", async function( request, response ) {
 
     const resetToken = {
       "username" : userFromDB.username,
+      "userID" : userFromDB._id,
       "OTP" : OTP,
       "createdAt" : new Date(),
     }
@@ -102,28 +103,33 @@ router.post("/forgotpassword", async function( request, response ) {
 
 })
 
-// router.get("/changepassword/:id/:token", async function (request, response) {
-//   const {id, token} = request.params;
-//   console.log(request.params)
+router.put('/changepassword/:id', async function (request, response) {
+  const { password, confirmPassword} = request.body;
+  const {id} = request.params
 
-//   const userFromDB = await getUserById(id);
+  console.log(id)
 
-//   if( !userFromDB ) {
-//     console.log("No user found")
-//     response.status(404).send({message: "User Not Found"})
-//   }
+  const userFromDB = await getUserById(id)
 
-//   const secret = process.env.SECRET_KEY_FOR_RESET
-  
-//   try {
-//     const verify = jwt.verify(token, secret)
-//     response.send("Verified")
-//   }
-//   catch(err) {
-//     console.log(err)
-//     response.send("Not Verified")
-//   }
-// })
+  if (password !== confirmPassword) {
+    response.status(401).send({ message: "Passwords, doesn't match"})
+  }
+  else if(password.length < 8) {
+    response.status(404).send({message: "Password Length should be more than 8 characters"})
+  }
+  else {
+    const hashedPassword = await generateHashedPassword(password)
+    const result = await updatePassword(
+      id, 
+      {
+        username: userFromDB.username,
+        password: hashedPassword
+      })
+    console.log(result)
+    response.send(result)
+  }
+
+})
 
 export default router
 
