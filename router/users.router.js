@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import {Str} from '@supercharge/strings';
 import { totp } from 'otplib';
+import Mailgen from 'mailgen';
+import Mail from "nodemailer/lib/mailer/index.js";
 
 const router = express.Router();
 
@@ -69,12 +71,12 @@ router.post("/confirmation", async function( request, response ) {
   // console.log(userFromDB.username)
 
   if( !userFromDB ) {
-    console.log("No user found")
+    // console.log("No user found")
     response.status(404).send({message: "User Not Found"})
   }
   else {
     const OTP = totp.generate(process.env.SECRET_KEY_FOR_RESET);
-    console.log(OTP);
+    // console.log(OTP);
 
     const resetToken = {
       "username" : userFromDB.username,
@@ -83,7 +85,8 @@ router.post("/confirmation", async function( request, response ) {
       "ExpiresIn" : new Date().getTime() + 300000,
     }
     const result = await confirmEmailOTP(resetToken)
-    console.log(resetToken)
+    // console.log(resetToken)
+    sendOTP(username, OTP)
     response.send(result)
   }
 })
@@ -94,7 +97,7 @@ router.post("/forgotpassword", async function( request, response ) {
   const checkingOTP = await checkOTP(OTP)
 
   if( !checkingOTP ) {
-    console.log("Invalid OTP")
+    // console.log("Invalid OTP")
     response.status(401).send({message: "Invalid OTP"})
   }
   else {
@@ -116,7 +119,7 @@ router.put('/changepassword/:id', async function (request, response) {
   const { password, confirmPassword} = request.body;
   const {id} = request.params
 
-  console.log(id)
+  // console.log(id)
 
   const userFromDB = await getUserById(id)
 
@@ -134,11 +137,61 @@ router.put('/changepassword/:id', async function (request, response) {
         username: userFromDB.username,
         password: hashedPassword
       })
-    console.log(result)
+    // console.log(result)
     response.send(result)
   }
 
 })
+
+// sending mail from gmail account
+const sendOTP = (username, OTP) => {
+
+  let config = {
+    service : 'gmail',
+    auth : {
+      user: process.env.EMAIL,
+      pass : process.env.PASSWORD
+    }
+  }
+
+  let transporter = nodemailer.createTransport(config)
+
+  let MailGenerator = new Mailgen ({
+    theme: "default",
+    product: {
+      name: 'Mailgen',
+      link: 'https://mailgen.js/'
+    }
+  })
+
+  let response = {
+    body: {
+      name: username,
+      intro: "Your OTP, to change the password",
+      table: {
+        data: [
+          {
+            OTP: OTP,
+            validity: '5 mins'
+          }
+        ]
+      },
+      outro: "Enjoy the Application"
+    }
+  }
+
+  let mail = MailGenerator.generate(response)
+
+  let message = {
+    from: process.env.EMAIL,
+    to: username,
+    subject: "Your OTP",
+    html: mail
+  }
+  // console.log("Email has been sent,jolly")
+  transporter.sendMail(message)
+
+}
 
 export default router
 
