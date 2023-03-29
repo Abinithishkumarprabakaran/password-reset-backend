@@ -66,15 +66,15 @@ router.post("/confirmation", async function( request, response ) {
   const { username } = request.body
 
   const userFromDB = await getUserByName(username);
-  // console.log(userFromDB.username)
+  console.log(userFromDB.username)
 
   if( !userFromDB ) {
-    // console.log("No user found")
+    console.log("No user found")
     response.status(404).send({message: "User Not Found"})
   }
   else {
     const OTP = totp.generate(process.env.SECRET_KEY_FOR_RESET);
-    // console.log(OTP);
+    console.log(OTP);
 
     const resetToken = {
       "username" : userFromDB.username,
@@ -83,7 +83,7 @@ router.post("/confirmation", async function( request, response ) {
       "ExpiresIn" : new Date().getTime() + 300000,
     }
     const result = await confirmEmailOTP(resetToken)
-    // console.log(resetToken)
+    console.log(resetToken)
     sendOTP(username, OTP)
     response.send(result)
   }
@@ -95,7 +95,7 @@ router.post("/forgotpassword", async function( request, response ) {
   const checkingOTP = await checkOTP(OTP)
 
   if( !checkingOTP ) {
-    // console.log("Invalid OTP")
+    console.log("Invalid OTP")
     response.status(401).send({message: "Invalid OTP"})
   }
   else {
@@ -117,7 +117,7 @@ router.put('/changepassword/:id', async function (request, response) {
   const { password, confirmPassword} = request.body;
   const {id} = request.params
 
-  // console.log(id)
+  console.log(id)
 
   const userFromDB = await getUserById(id)
 
@@ -135,7 +135,7 @@ router.put('/changepassword/:id', async function (request, response) {
         username: userFromDB.username,
         password: hashedPassword
       })
-    // console.log(result)
+    console.log(result)
     response.send(result)
   }
 
