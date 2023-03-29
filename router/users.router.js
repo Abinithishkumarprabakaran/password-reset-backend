@@ -186,7 +186,7 @@ const sendOTP = (username, OTP) => {
     subject: "Your OTP",
     html: mail
   }
-  // console.log("Email has been sent,jolly")
+  console.log("Email has been sent,jolly")
   transporter.sendMail(message)
 
 }
