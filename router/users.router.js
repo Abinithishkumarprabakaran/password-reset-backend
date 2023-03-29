@@ -3,10 +3,8 @@ import bcrypt from "bcrypt";
 import { getUserByName, createUser, confirmEmailOTP, getUserById, checkOTP, updatePassword } from "../service/users.service.js";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import {Str} from '@supercharge/strings';
 import { totp } from 'otplib';
 import Mailgen from 'mailgen';
-import Mail from "nodemailer/lib/mailer/index.js";
 
 const router = express.Router();
 
